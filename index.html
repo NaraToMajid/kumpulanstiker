@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ORASTICKER - Kumpulan Stiker Terbaru</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>ORASTICKER</h1>
+            <p class="subtitle">Kumpulan Stiker-stiker terbaru</p>
+            <button class="theme-toggle" id="themeToggle">
+                <i class="fas fa-moon"></i>
+            </button>
+        </header>
+        
+        <!-- Setup Instructions -->
+        <div class="setup-message" id="setupMessage" style="display: none;">
+            <h3><i class="fas fa-tools"></i> Setup Required</h3>
+            <p>Untuk menggunakan ORASTICKER, Anda perlu membuat bucket storage di Supabase:</p>
+            <ol>
+                <li>Buka <a href="https://supabase.com/dashboard/project/bxhrnnwfqlsoviysqcdw/storage" target="_blank" style="color: white; text-decoration: underline;">Supabase Dashboard → Storage</a></li>
+                <li>Klik "Create a new bucket"</li>
+                <li>Beri nama: <code>sticker-images</code></li>
+                <li>Pilih "Public" untuk bucket visibility</li>
+                <li>Klik "Create bucket"</li>
+                <li>Refresh halaman ini setelah bucket dibuat</li>
+            </ol>
+            <p>Setelah bucket dibuat, website akan berfungsi normal.</p>
+        </div>
+        
+        <!-- Main View (Folders List) -->
+        <main class="main-content" id="mainView">
+            <!-- Add Folder Button -->
+            <div class="add-section">
+                <button class="add-btn" id="addFolderBtn">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <div class="add-btn-label">Buat Folder Baru</div>
+            </div>
+            
+            <!-- Message Area -->
+            <div id="messageArea"></div>
+            
+            <!-- Loading Indicator -->
+            <div class="loading" id="loadingIndicator" style="display: none;">
+                <i class="fas fa-spinner fa-spin"></i> Memuat folder...
+            </div>
+            
+            <!-- Folders Grid -->
+            <div class="folders-section">
+                <h2 class="section-title">Folder Stiker</h2>
+                <div class="folders-grid" id="foldersContainer">
+                    <!-- Folder cards will be loaded here -->
+                    <div class="empty-state" id="emptyState" style="display: none;">
+                        <div class="empty-icon">
+                            <i class="fas fa-folder-open"></i>
+                        </div>
+                        <p class="empty-text">Belum ada folder stiker</p>
+                        <p>Klik tombol "+" di atas untuk membuat folder pertama!</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Folder Detail View -->
+        <div class="folder-detail-view" id="folderDetailView">
+            <!-- Folder Info -->
+            <div class="folder-info">
+                <div class="folder-info-header">
+                    <button class="back-button" id="backButton">
+                        <i class="fas fa-arrow-left"></i> Kembali
+                    </button>
+                    <div class="folder-actions">
+                        <button class="action-btn" id="uploadBtn">
+                            <i class="fas fa-plus"></i> Tambah Stiker
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="folder-header">
+                    <i class="fas fa-folder folder-icon"></i>
+                    <div>
+                        <div class="folder-name" id="detailFolderName">Nama Folder</div>
+                        <div class="folder-creator" id="detailFolderCreator"></div>
+                    </div>
+                </div>
+                
+                <div class="folder-desc" id="detailFolderDesc"></div>
+                <div class="folder-stats">
+                    <span id="detailFolderDate">Dibuat: -</span>
+                    <span><i class="fas fa-image"></i> <span id="detailStickerCount">0</span> stiker</span>
+                </div>
+            </div>
+            
+            <!-- Upload Section (Hidden by default) -->
+            <div class="upload-section" id="uploadSection" style="display: none;">
+                <div class="upload-title">Upload Stiker Baru</div>
+                <form id="uploadStickerForm">
+                    <div class="file-input-container">
+                        <label for="stickerFile" class="file-input-label">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>Klik untuk memilih file stiker</span>
+                            <span class="form-hint">Format: JPG, PNG, WebP (Maks. 5MB)</span>
+                        </label>
+                        <input type="file" id="stickerFile" class="file-input" accept=".jpg,.jpeg,.png,.webp" required>
+                    </div>
+                    
+                    <div class="file-preview" id="filePreview" style="display: none;">
+                        <img src="" alt="Preview" class="preview-img" id="previewImage">
+                        <div class="preview-name" id="previewFileName"></div>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-upload"></i> Upload Stiker
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Stickers Grid -->
+            <div class="stickers-section" id="stickersSection">
+                <h3 class="section-title">Stiker dalam Folder</h3>
+                <div class="stickers-grid" id="stickersContainer">
+                    <!-- Stickers will be loaded here -->
+                </div>
+                
+                <!-- Empty State for Stickers -->
+                <div class="empty-state" id="stickersEmptyState" style="display: none;">
+                    <div class="empty-icon">
+                        <i class="fas fa-image"></i>
+                    </div>
+                    <p class="empty-text">Belum ada stiker di folder ini</p>
+                    <p>Klik "Tambah Stiker" di atas untuk menambahkan stiker pertama!</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Download Button -->
+        <button class="quick-download-btn" id="quickDownloadBtn" title="Download Semua Stiker di Folder Ini">
+            <i class="fas fa-download"></i>
+        </button>
+        
+        <footer>
+            <p>ORASTICKER 2025 - MADE BY ALMAJID - ORADEV</p>
+        </footer>
+    </div>
+    
+    <!-- Create Folder Modal -->
+    <div class="modal" id="createFolderModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Buat Folder Baru</h3>
+                <button class="close-modal" id="closeFolderModal">&times;</button>
+            </div>
+            <form id="folderForm">
+                <div class="form-group">
+                    <label for="creatorName">Nama Pencipta (opsional)</label>
+                    <input type="text" id="creatorName" placeholder="Nama Anda">
+                </div>
+                
+                <div class="form-group">
+                    <label for="folderName">Nama Folder *</label>
+                    <input type="text" id="folderName" placeholder="Nama folder stiker" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="folderDescription">Deskripsi Folder (opsional)</label>
+                    <textarea id="folderDescription" placeholder="Deskripsi singkat tentang folder stiker ini"></textarea>
+                </div>
+                
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-folder-plus"></i> Buat Folder
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Import Sticker Modal -->
+    <div class="modal" id="importStickerModal">
+        <div class="modal-content import-modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Import Stiker ke Aplikasi</h3>
+                <button class="close-modal" id="closeImportModal">&times;</button>
+            </div>
+            
+            <div id="importModalContent">
+                <!-- Import options will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Supabase Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js"></script>
+</body>
+</html>
